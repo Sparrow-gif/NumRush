@@ -174,9 +174,10 @@
       bottom:20px;
       left:40%;
       text-align:center;
-      box-shadow:var(--box-shadow);
+      box-shadow:var(--shadow);
       border-radius:15px;
       outline:2px solid #fff;
+      background: var(--info-box-bg);
 }
 
 
