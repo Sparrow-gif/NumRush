@@ -1,0 +1,172 @@
+
+    :root {
+            --background-color: #ffffff;
+            --text-color: #333;
+            --font-family: "Open Sans", system-ui ;
+            --shadow: 0 0px 4px rgba(0, 0, 0, 0.1);
+            
+            --info-text-color: #6c757d;
+            --info-box-bg: #f8f9fa ;
+        }
+
+        /* 🌙 Dark Mode */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #0F172A;
+                --text-color: #ffffff;
+                --shadow: 0 2px 5px rgba(255, 255, 255, 0.1);
+  
+                
+                --info-text-color: ;
+                --info-box-bg : #1e293b;
+            }
+        }
+
+  /**************************************/  
+    body {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        user-select: none;
+        min-height: 100vh;
+        background: var(--background-color);
+        font-family: var(--font-family);
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        user-select: none;
+        font-family: var(--font-family);
+    }
+    
+     *::-webkit-scrollbar {
+           display: none; /* Chrome, Safari, and Opera */
+         }
+
+    body::before {
+       content: '';
+       position: fixed;
+       bottom: 0;
+       left: 0;
+       width: 100%;
+       height: 60%;
+       background-image: url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='40' font-size='32' fill='%23cccccc' font-family='monospace'%3E12%3C/text%3E%3Ctext x='60' y='90' font-size='32' fill='%23cccccc' font-family='monospace'%3E34%3C/text%3E%3Ctext x='20' y='110' font-size='32' fill='%23cccccc' font-family='monospace'%3E78%3C/text%3E%3C/svg%3E");
+       background-size: 120px 120px;
+       opacity: 0.3;
+       z-index: 0;
+       pointer-events: none;
+       mask-image: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+       -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 100%);
+       backdrop-filter: blur(1px);
+    }     
+    
+   /*********************************************/ 
+    .game-card {
+      background: var(--game-card);
+      color: var(--text-color);
+      border: none;
+      margin-top: 50px;
+    }
+    
+    #number {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #3498db;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      animation: pulse 1s infinite alternate;
+    }
+    
+    .timer-container {
+      height: 10px;
+      background: #ecf0f1;
+      border-radius: 5px;
+      overflow: hidden;
+    }
+    
+    #timer-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #2ecc71, #3498db);
+      width: 100%;
+      transition: width 0.1s linear;
+    }
+    
+    .life {
+      width: 15px;
+      height: 15px;
+      background: #e74c3c;
+      border-radius: 50%;
+      margin: 0 5px;
+      display: inline-block;
+    }
+    
+    .life.lost {
+      background: #bdc3c7;
+    }
+    
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.05); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+    
+    .shake {
+      animation: shake 0.5s;
+    }
+    
+    .correct {
+      color: #2ecc71 !important;
+    }
+    
+    .incorrect {
+      color: #e74c3c !important;
+    }
+    
+    .info-box {
+      background: var(--info-box-bg);
+      border-radius: 8px;
+      padding: 10px;
+    }
+    
+    .info-label {
+      font-size: 0.8rem;
+      color: var(--info-color);
+    }
+    
+    .info-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+    
+    #guess {
+      font-size: 1rem;
+      text-align: center;
+      min-width: 80%px;
+      max-width: 80%;
+      padding: 0px;
+      margin-top: 40px;
+    }
+   .row-update {
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      margin: 0 auto;
+   }
+
+   .info-box { flex-grow: 1; }
+
+   .btn-danger {
+      margin-top: 40px;
+      color: ;
+   }
+
+
+

@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Number Guess Game</title>
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!--Font Family-->
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="flower.css?v=1.2">
+
+  
+</head>
+<body>
+  <div class="container py-4">
+
+    <!-- Home Screen -->
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-6" id="homeScreen">
+        <div class="card game-card p-1">
+          <div class="card-body text-center">
+            <h1 class="card-title mb-4">Number Guess Game</h1>
+            <p class="card-text mb-4">Test your memory and speed by guessing numbers before time runs out!</p>
+            
+            <div class="difficulty-selector mb-4">
+              <div class="btn-group d-flex gap-2" role="group">
+                <button type="button" class="btn btn-outline-primary active difficulty-btn" data-level="easy">Easy</button>
+                <button type="button" class="btn btn-outline-primary difficulty-btn" data-level="medium">Medium</button>
+                <button type="button" class="btn btn-outline-primary difficulty-btn" data-level="hard">Hard</button>
+              </div>
+            </div>
+            
+            <button class="btn btn-success btn-lg px-4" onclick="startGame()">Start Game</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="row d-flex justify-content-center">
+      <div class="col-md-6" id="gameContainer" style="display:none">
+        <div class="card game-card p-2">
+          <div class="card-body text-center">
+
+            <div class="row-update mb-4">
+            
+                <div class="info-box">
+                  <div class="info-label">Score</div>
+                  <div class="info-value" id="score">0</div>
+                </div>
+              
+                <div class="info-box">
+                  <div class="info-label">High Score</div>
+                  <div class="info-value" id="highscore">0</div>
+                </div>
+              
+                <div class="info-box">
+                  <div class="info-label">Time</div>
+                  <div class="info-value" id="time">6.0</div>
+                </div>
+              
+            </div>
+
+
+            <h2 class="card-title mb-4">Guess the Number</h2>
+            
+           
+            <div class="timer-container mb-4">
+              <div id="timer-bar"></div>
+            </div>
+
+
+            <div class="lives-container mb-2" id="livesContainer">
+              <div class="life"></div>
+              <div class="life"></div>
+              <div class="life"></div>
+            </div>
+
+
+            <div id="number" class=""></div>
+
+
+            <input type="number" id="guess" class="form-control form-control-lg mb-4 mx-auto" 
+                   placeholder="Type number" min="10" max="99" 
+                   onkeydown="return event.keyCode !== 69 && event.keyCode !== 187 && event.keyCode !== 189">
+            
+            
+            <button class="btn btn-danger" onclick="endGame('Game stopped')"> Give Up </button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    // Game variables
+    let number, score = 0, timeLeft, interval;
+    let lives = 3;
+    let difficulty = {
+      easy: { initialTime: 6.0, timeDecrease: 0.1, minTime: 3.0 },
+      medium: { initialTime: 4.0, timeDecrease: 0.2, minTime: 1.5 },
+      hard: { initialTime: 2.5, timeDecrease: 0.3, minTime: 0.8 }
+    };
+    let currentDifficulty = 'easy';
+    
+    // DOM elements
+    const scoreEl = document.getElementById("score");
+    const highscoreEl = document.getElementById("highscore");
+    const timeEl = document.getElementById("time");
+    const timerBar = document.getElementById("timer-bar");
+    const numberEl = document.getElementById("number");
+    const guessInput = document.getElementById("guess");
+    const gameContainer = document.getElementById("gameContainer");
+    const homeScreen = document.getElementById("homeScreen");
+    const livesContainer = document.getElementById("livesContainer");
+    const difficultyBtns = document.querySelectorAll('.difficulty-btn');
+
+    // High score storage
+    const deviceID = "number-guess-game-user";
+    const highScoreKey = `highscore_${deviceID}_${currentDifficulty}`;
+    let highScore = localStorage.getItem(highScoreKey) || 0;
+    highscoreEl.textContent = highScore;
+
+    // Setup difficulty buttons
+    difficultyBtns.forEach(btn => {
+      btn.addEventListener('click', function() {
+        difficultyBtns.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentDifficulty = this.dataset.level;
+      });
+    });
+
+    function showHome() {
+      gameContainer.style.display = 'none';
+      homeScreen.style.display = 'block';
+    }
+
+    function startGame() {
+      // Reset game state
+      homeScreen.style.display = 'none';
+      gameContainer.style.display = 'block';
+      score = 0;
+      lives = 3;
+      timeLeft = difficulty[currentDifficulty].initialTime;
+      scoreEl.textContent = score;
+      guessInput.value = '';
+      guessInput.focus();
+      
+      // Update high score display for current difficulty
+      updateHighScoreDisplay();
+      
+      // Reset lives display
+      updateLivesDisplay();
+      
+      // Start game
+      nextNumber();
+    }
+
+    function nextNumber() {
+      // Generate new random number
+      number = Math.floor(Math.random() * 90 + 10);
+      numberEl.textContent = number;
+      numberEl.className = '';
+      guessInput.value = '';
+      guessInput.focus();
+      
+      // Start timer
+      runTimer();
+    }
+
+    function runTimer() {
+      clearInterval(interval);
+      let currentTime = timeLeft;
+      updateTimerDisplay(currentTime);
+
+      interval = setInterval(() => {
+        currentTime -= 0.1;
+        updateTimerDisplay(currentTime);
+
+        const guess = guessInput.value;
+
+        // Check if input length matches number length
+        if (guess.length === number.toString().length) {
+          if (parseInt(guess) === number) {
+            // Correct answer
+            handleCorrectAnswer();
+          } else {
+            // Wrong answer
+            handleWrongAnswer("Wrong answer!");
+          }
+        } else {
+          // Check partial input
+          const partial = number.toString().substring(0, guess.length);
+          if (guess && guess !== partial) {
+            handleWrongAnswer("Wrong input!");
+          }
+        }
+
+        // Check if time ran out
+        if (currentTime <= 0) {
+          handleWrongAnswer("Time's up!");
+        }
+      }, 100);
+    }
+
+    function handleCorrectAnswer() {
+      clearInterval(interval);
+      
+      // Visual feedback
+      numberEl.classList.add('correct');
+      
+      // Play sound
+      playSound('correct');
+      
+      // Update score and timer
+      score++;
+      scoreEl.textContent = score;
+      timeLeft = Math.max(
+        difficulty[currentDifficulty].minTime, 
+        timeLeft - difficulty[currentDifficulty].timeDecrease
+      );
+      
+      // Next number after short delay
+      setTimeout(nextNumber, 500);
+    }
+
+    function handleWrongAnswer(message) {
+      clearInterval(interval);
+      
+      // Visual feedback
+      numberEl.classList.add('incorrect', 'shake');
+      
+      // Play sound
+      playSound('wrong');
+      
+      // Lose a life
+      lives--;
+      updateLivesDisplay();
+      
+      if (lives > 0) {
+        // Continue with next number after delay
+        setTimeout(() => {
+          timeLeft = difficulty[currentDifficulty].initialTime;
+          nextNumber();
+        }, 1000);
+      } else {
+        // Game over
+        setTimeout(() => endGame(message), 500);
+      }
+    }
+
+    function updateTimerDisplay(time) {
+      timeEl.textContent = time.toFixed(1);
+      const percentage = (time / difficulty[currentDifficulty].initialTime) * 100;
+      timerBar.style.width = `${percentage}%`;
+      
+      // Change color when time is running low
+      if (time < difficulty[currentDifficulty].initialTime * 0.3) {
+        timerBar.style.background = '#e74c3c';
+      } else if (time < difficulty[currentDifficulty].initialTime * 0.6) {
+        timerBar.style.background = '#f39c12';
+      } else {
+        timerBar.style.background = 'linear-gradient(90deg, #2ecc71, #3498db)';
+      }
+    }
+
+    function updateLivesDisplay() {
+      const lifeIcons = livesContainer.querySelectorAll('.life');
+      lifeIcons.forEach((icon, index) => {
+        icon.classList.toggle('lost', index >= lives);
+      });
+    }
+
+    function updateHighScoreDisplay() {
+      const currentHighScoreKey = `highscore_${deviceID}_${currentDifficulty}`;
+      highScore = localStorage.getItem(currentHighScoreKey) || 0;
+      highscoreEl.textContent = highScore;
+    }
+
+    function endGame(message) {
+      clearInterval(interval);
+      
+      // Update high score if needed
+      const currentHighScoreKey = `highscore_${deviceID}_${currentDifficulty}`;
+      if (score > highScore) {
+        localStorage.setItem(currentHighScoreKey, score);
+        highScore = score;
+      }
+      
+      // Show game over dialog
+      Swal.fire({
+        title: 'Game Over',
+        html: `<p>${message}</p>
+               <p>Your Score: <strong>${score}</strong></p>
+               <p>High Score: <strong>${Math.max(score, highScore)}</strong></p>`,
+        icon: score > highScore ? 'success' : 'error',
+        showCancelButton: true,
+        confirmButtonText: 'Play Again',
+        cancelButtonText: 'Back to Home',
+        customClass: {
+          popup: 'animate__animated animate__tada'
+        }
+      }).then((result) => {
+        if (result.isConfirmed) {
+          startGame();
+        } else {
+          showHome();
+        }
+      });
+    }
+
+    function playSound(type) {
+      // In a real implementation, you would play actual sound files here
+      console.log(`Playing ${type} sound`);
+    }
+
+    // Initialize game
+    showHome();
+  </script>
+</body>
+</html>
