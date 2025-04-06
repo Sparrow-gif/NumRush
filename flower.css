@@ -178,6 +178,7 @@
       border-radius:15px;
       outline:2px solid #fff;
       background: var(--info-box-bg);
+      margin:0 auto;
 }
 
 
